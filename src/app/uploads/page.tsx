@@ -37,10 +37,11 @@ const UploadedFilesDisplay = ({
               <Card key={index} className="overflow-hidden shadow">
                 <CardContent className="p-2 space-y-2">
                   {/* Category Label */}
-                  <div className="bg-blue-500 text-white text-sm font-semibold py-1 px-2 rounded-full mb-2">
-                    {fileCategories.get(file) || "Select Category"}
-                  </div>
-
+                  {fileCategories.has(file) && (
+                    <div className="bg-blue-800 text-white text-sm font-semibold py-1 px-2 rounded-sm mb-2">
+                      {fileCategories.get(file)}
+                    </div>
+                  )}
                   <img
                     src={URL.createObjectURL(file)}
                     alt={file.name}
@@ -125,6 +126,12 @@ const UploadedFilesDisplay = ({
                       ))}
                     </select>
                   </div>
+                       {/* Category Label */}
+                       {fileCategories.has(file) && (
+                    <div className="bg-blue-800 text-white text-sm font-semibold py-1 px-2 rounded-sm mb-2">
+                      {fileCategories.get(file)}
+                    </div>
+                  )}
                 </div>
               ))}
             </CardContent>
