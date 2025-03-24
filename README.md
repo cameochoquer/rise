@@ -1,6 +1,12 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## SheCanCode Power Hack
+
+This is a collaborative project built around increasing safety in abusive relationships. 
+
+Slide deck: https://www.figma.com/slides/b8bLJryFMMObcV2dRkAP3d/Rise?node-id=7-280&t=x4oUztVeOQOiV6Tf-1
 
 ## Getting Started
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 First, run the development server:
 
