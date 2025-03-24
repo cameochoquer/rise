@@ -1,17 +1,21 @@
-
-import { DiaryLog } from './diaryLog';
-import { FileUploader } from './fileUploader';
-import { MonthCalendar } from './monthCalendar';
+import { DiaryLog } from "../components/ui/diaryLog";
+import { FileUploader } from "../components/ui/fileUploader";
+import { MonthCalendar } from "../components/ui/monthCalendar";
+//import Login from "../components/ui/loginForm";
+import LoginPage from "./login/page";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <div className="lg:col-span-2 space-y-6">
+        <LoginPage />
+      </div>
       <header className="sticky top-0 z-10 backdrop-blur-sm bg-background/80 border-b">
         <div className="container mx-auto py-4 px-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
             Personal Journal
           </h1>
-            <FileUploader />
+          <FileUploader />
         </div>
       </header>
 
@@ -23,12 +27,11 @@ export default function Home() {
 
           <div className="space-y-6">
             <div className="sticky top-24">
-             <MonthCalendar />
+              <MonthCalendar />
             </div>
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 }
-
