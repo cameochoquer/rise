@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-      <h1>Title placeholder code</h1>
+      <h1>Rise</h1>
       </main>
       <footer className={styles.footer}>
         <p>footer placeholder code</p>
