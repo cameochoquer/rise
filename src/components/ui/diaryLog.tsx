@@ -34,49 +34,50 @@ interface DiaryEntry {
   date: string;
   mood?: string
   attachments?: string[]
+  private?: boolean
 }
 
 export function DiaryLog() {
-  const [entries, setEntries] = useState<DiaryEntry[]>([  ])
+  const [entries, setEntries] = useState<DiaryEntry[]>([])
 
   const [newEntry, setNewEntry] = useState("")
   const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
-
+  const [showPrivate, setShowPrivate] = useState(true)
   const supabase = createSupabaseClient()
 
-  const getEntries = async (userId: number)=>{
+  const getEntries = async (userId: number) => {
     const { data, error } = await supabase
-    .from('diary_entries')
-    .select('*')
-    .eq('user_id', userId)
-    .order('date', { ascending: false });
+      .from('diary_entries')
+      .select('*')
+      .eq('user_id', userId)
+      .order('date', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching diary entries:', error);
-    return [];
-  }
-  setEntries(data)
+    if (error) {
+      console.error('Error fetching diary entries:', error);
+      return [];
+    }
 
-  return data as DiaryEntry[];
+    setEntries(data)
+    return data as DiaryEntry[];
   }
 
   useEffect(() => {
-  getEntries(1)
-  },[])
+    getEntries(1)
+  }, [])
 
   const addEntry = async () => {
     if (newEntry.trim()) {
       const cleanEntry = sanitize(newEntry)
-      const {data, error} = await supabase
-      .from('diary_entries')
-      .insert([{
-        content: cleanEntry,
-        user_id: 1,
-        date: new Date(),
-      }])
-      .select()
-      .single();
+      const { data, error } = await supabase
+        .from('diary_entries')
+        .insert([{
+          content: cleanEntry,
+          user_id: 1,
+          date: new Date(),
+        }])
+        .select()
+        .single();
 
       if (error) {
         console.error('Error creating diary entry:', error);
@@ -92,14 +93,14 @@ export function DiaryLog() {
     if (editingEntry && editingEntry.content.trim()) {
       const cleanEntry = sanitize(editingEntry.content)
       const { data, error } = await supabase
-      .from('diary_entries')
-      .update({
-        content: cleanEntry,
-        mood: editingEntry.mood,
-        date: new Date()
-      })
-      .eq('id', id)
-      .select();
+        .from('diary_entries')
+        .update({
+          content: cleanEntry,
+          mood: editingEntry.mood,
+          date: new Date()
+        })
+        .eq('id', id)
+        .select();
 
       setEntries(entries.map((entry) =>
         entry.id === id ? (data ? data[0] : editingEntry) : entry
@@ -110,9 +111,9 @@ export function DiaryLog() {
 
   const deleteEntry = async (id: number) => {
     const { data, error } = await supabase
-    .from('diary_entries')
-    .delete()
-    .eq('id', id);
+      .from('diary_entries')
+      .delete()
+      .eq('id', id);
     if (error) {
       console.error('Error creating diary entry:', error);
       return null;
@@ -127,7 +128,7 @@ export function DiaryLog() {
       year: "numeric",
       month: "long",
       day: "numeric",
-    }).format(newDate )
+    }).format(newDate)
   }
 
   const formatTime = (date: string) => {
@@ -141,20 +142,24 @@ export function DiaryLog() {
   }
 
   const filteredEntries = selectedDate
-    ? entries.filter(
-        (entry) =>
-          {
-          const newDate = new Date(entry.date)
-          const newSelectedDate = new Date(selectedDate)
-          newDate.getDate() === newSelectedDate.getDate() &&
-          newDate.getMonth() === newSelectedDate.getMonth() &&
-          newDate.getFullYear() === newSelectedDate.getFullYear()
-          }
-      )
-    : entries
+  ? entries.filter((entry) => {
+      const newDate = new Date(entry.date)
+      const newSelectedDate = new Date(selectedDate)
+      const isSameDay =
+        newDate.getDate() === newSelectedDate.getDate() &&
+        newDate.getMonth() === newSelectedDate.getMonth() &&
+        newDate.getFullYear() === newSelectedDate.getFullYear()
+      return isSameDay && (showPrivate || !entry.private)
+    })
+  : entries.filter((entry) => showPrivate || !entry.private)
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button variant="ghost" onClick={() => setShowPrivate(!showPrivate)}>
+          {showPrivate ? "Hide Private Entries" : "Show Private Entries"}
+        </Button>
+      </div>
       <Card className="overflow-hidden border-none shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
@@ -259,7 +264,7 @@ export function DiaryLog() {
                             }
                           />
                           <DialogFooter>
-                            <Button onClick={()=> updateEntry(entry.id)}>Save Changes</Button>
+                            <Button onClick={() => updateEntry(entry.id)}>Save Changes</Button>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
