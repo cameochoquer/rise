@@ -1,7 +1,6 @@
 
-import { FileUploader } from "@/components/file-uploader"
-import { DiaryLog } from "@/components/diary-log"
-import { MonthCalendar } from "@/components/month-calendar"
+import { DiaryLog } from './diaryLog';
+import { FileUploader } from './fileUploader';
 
 export default function Home() {
   return (
@@ -23,7 +22,7 @@ export default function Home() {
 
           <div className="space-y-6">
             <div className="sticky top-24">
-  {       //    <MonthCalendar /> }
+             <MonthCalendar />
             </div>
           </div>
         </div>
