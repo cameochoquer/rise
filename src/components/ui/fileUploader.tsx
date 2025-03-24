@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-import { FileUploader } from '../components/ui/fileUploader';
 
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
@@ -27,8 +26,11 @@ interface FileItem {
   status: FileStatus
   id: string
 }
+interface FileUploaderProps {
+  onFilesUploaded?: (files: File[]) => void
+}
 
-export function FileUploader() {
+export function FileUploader({ onFilesUploaded }: FileUploaderProps) {
   const [files, setFiles] = useState<FileItem[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -37,6 +39,7 @@ export function FileUploader() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       addFiles(Array.from(e.target.files))
+      console.log('file uploaded', e.target.files)
     }
   }
 
@@ -49,6 +52,11 @@ export function FileUploader() {
     }))
 
     setFiles((prev) => [...prev, ...newFileItems])
+
+     // Pass files to parent
+     if (onFilesUploaded) {
+      onFilesUploaded(newFiles)
+    }
 
     // Simulate upload for each file
     newFileItems.forEach((fileItem) => {
