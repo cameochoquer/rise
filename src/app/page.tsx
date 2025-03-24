@@ -1,8 +1,15 @@
+
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
+
+
+import { DiaryLog } from './diaryLog';
+import { FileUploader } from './fileUploader';
+import { MonthCalendar } from './monthCalendar';
+
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -15,6 +22,7 @@ export default function Home() {
   };
 
   return (
+
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
       <div className="max-w-md w-full space-y-8 p-10 bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20">
         <div className="text-center space-y-2">
@@ -137,6 +145,32 @@ export default function Home() {
           </Link>
         </div>
       </div>
+
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+      <header className="sticky top-0 z-10 backdrop-blur-sm bg-background/80 border-b">
+        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
+            Personal Journal
+          </h1>
+            <FileUploader />
+        </div>
+      </header>
+
+      <main className="container mx-auto py-8 px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <DiaryLog />
+          </div>
+
+          <div className="space-y-6">
+            <div className="sticky top-24">
+             <MonthCalendar />
+            </div>
+          </div>
+        </div>
+      </main>
+
     </div>
-  );
+  )
 }
+
