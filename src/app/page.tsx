@@ -1,7 +1,7 @@
 
-import { DiaryLog } from './diaryLog';
-import { FileUploader } from './fileUploader';
-import { MonthCalendar } from './monthCalendar';
+import { DiaryLog } from '../components/ui/diaryLog';
+import { FileUploader } from '../components/ui/fileUploader';
+import { MonthCalendar } from '../components/ui/monthCalendar';
 
 export default function Home() {
   return (

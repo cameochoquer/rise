@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { FileUploader } from '../components/ui/fileUploader';
 
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
