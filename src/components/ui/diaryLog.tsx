@@ -25,7 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { cn } from "@/lib/utils"
+import { cn, sanitize } from "@/lib/utils"
 import supabase, { createSupabaseClient } from '@/lib/supabase'
 interface DiaryEntry {
   id: number
@@ -66,10 +66,11 @@ export function DiaryLog() {
 
   const addEntry = async () => {
     if (newEntry.trim()) {
+      const cleanEntry = sanitize(newEntry)
       const {data, error} = await supabase
       .from('diary_entries')
       .insert([{
-        content: newEntry,
+        content: cleanEntry,
         user_id: 1,
         date: new Date(),
       }])
@@ -88,10 +89,11 @@ export function DiaryLog() {
 
   const updateEntry = async (id: number) => {
     if (editingEntry && editingEntry.content.trim()) {
+      const cleanEntry = sanitize(editingEntry.content)
       const { data, error } = await supabase
       .from('diary_entries')
       .update({
-        content: editingEntry.content,
+        content: cleanEntry,
         mood: editingEntry.mood,
         date: new Date()
       })
