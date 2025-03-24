@@ -30,7 +30,12 @@ export default function RootLayout({
         <header>
           <nav className="p-4">
             <div className="container mx-auto flex justify-between items-center">
-              <h1 className="text-2xl font-semibold">RISE</h1>
+              <h1 className="text-2xl font-semibold">
+
+                <Link href="/" className="text-white hover:text-primary">
+                  RISE
+                </Link>
+              </h1>
               <ul className="flex space-x-6">
                 <li>
                   <Link href="/diary" className="text-white hover:text-primary">
@@ -40,6 +45,11 @@ export default function RootLayout({
                 <li>
                   <Link href="/uploads" className="text-white hover:text-primary">
                     Uploads
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/checklist" className="text-white hover:text-primary">
+                    Checklist
                   </Link>
                 </li>
               </ul>
