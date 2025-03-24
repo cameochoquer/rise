@@ -26,7 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { cn, sanitize } from "@/lib/utils"
-import supabase, { createSupabaseClient } from '@/lib/supabase'
+import { createSupabaseClient } from '@/lib/supabase'
 interface DiaryEntry {
   id: number
   userId: number
@@ -42,7 +42,9 @@ export function DiaryLog() {
   const [newEntry, setNewEntry] = useState("")
   const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+
   const supabase = createSupabaseClient()
+
   const getEntries = async (userId: number)=>{
     const { data, error } = await supabase
     .from('diary_entries')
@@ -61,8 +63,7 @@ export function DiaryLog() {
 
   useEffect(() => {
   getEntries(1)
-
-  })
+  },[])
 
   const addEntry = async () => {
     if (newEntry.trim()) {
