@@ -38,7 +38,7 @@ const UploadedFilesDisplay = ({
                 <CardContent className="p-2 space-y-2">
                   {/* Category Label */}
                   {fileCategories.has(file) && (
-                    <div className="bg-blue-800 text-white text-sm font-semibold py-1 px-2 rounded-sm mb-2">
+                    <div className="bg-blue-800 text-white w-fit text-sm font-semibold py-1 px-2 rounded-sm mb-2">
                       {fileCategories.get(file)}
                     </div>
                   )}
@@ -128,7 +128,7 @@ const UploadedFilesDisplay = ({
                   </div>
                        {/* Category Label */}
                        {fileCategories.has(file) && (
-                    <div className="bg-blue-800 text-white text-sm font-semibold py-1 px-2 rounded-sm mb-2">
+                    <div className="bg-blue-800 text-white text-sm w-fit font-semibold py-1 px-2 rounded-sm mb-2">
                       {fileCategories.get(file)}
                     </div>
                   )}
