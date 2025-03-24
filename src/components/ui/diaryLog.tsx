@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,55 +25,66 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-
+import supabase, { createSupabaseClient } from '@/lib/supabase'
 interface DiaryEntry {
-  id: string
+  id: number
+  userId: number
   content: string
-  date: Date
+  date: string;
   mood?: string
   attachments?: string[]
 }
 
 export function DiaryLog() {
-  const [entries, setEntries] = useState<DiaryEntry[]>([
-    {
-      id: "1",
-      content: "Today I started working on my new project. I'm excited about the possibilities!",
-      date: new Date(Date.now() - 86400000 * 2), // 2 days ago
-      mood: "happy",
-    },
-    {
-      id: "2",
-      content: "Had a productive day. Managed to solve that bug that was bothering me for days.",
-      date: new Date(Date.now() - 86400000), // 1 day ago
-      mood: "productive",
-    },
-    {
-      id: "3",
-      content: "Just uploaded some important files to my new app. The upload feature works great!",
-      date: new Date(),
-      mood: "excited",
-      attachments: ["/placeholder.svg?height=200&width=300"],
-    },
-  ])
+  const [entries, setEntries] = useState<DiaryEntry[]>([  ])
 
   const [newEntry, setNewEntry] = useState("")
   const [editingEntry, setEditingEntry] = useState<DiaryEntry | null>(null)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const supabase = createSupabaseClient()
+  const getEntries = async (userId: number)=>{
+    const { data, error } = await supabase
+    .from('diary_entries')
+    .select('*')
+    .eq('user_id', userId)
+    .order('date', { ascending: false });
 
-  const addEntry = () => {
+  if (error) {
+    console.error('Error fetching diary entries:', error);
+    return [];
+  }
+  setEntries(data)
+
+  return data as DiaryEntry[];
+  }
+
+  useEffect(() => {
+  getEntries(1)
+
+  })
+
+  const addEntry = async () => {
     if (newEntry.trim()) {
-      const entry: DiaryEntry = {
-        id: crypto.randomUUID(),
+      const {data, error} = await supabase
+      .from('diary_entries')
+      .insert([{
         content: newEntry,
+        user_id: 1,
         date: new Date(),
+      }])
+      .select()
+      .single();
+
+      if (error) {
+        console.error('Error creating diary entry:', error);
+        return null;
       }
-      setEntries([entry, ...entries])
       setNewEntry("")
+      return data
     }
   }
+
 
   const updateEntry = () => {
     if (editingEntry && editingEntry.content.trim()) {
@@ -82,33 +93,40 @@ export function DiaryLog() {
     }
   }
 
-  const deleteEntry = (id: string) => {
+  const deleteEntry = (id: number) => {
     setEntries(entries.filter((entry) => entry.id !== id))
   }
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: string) => {
+    const newDate = new Date(date)
     return new Intl.DateTimeFormat("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
-    }).format(date)
+    }).format(newDate )
   }
 
-  const formatTime = (date: Date) => {
+  const formatTime = (date: string) => {
+    const newDate = new Date(date)
+
     return new Intl.DateTimeFormat("en-US", {
       hour: "numeric",
       minute: "numeric",
       hour12: true,
-    }).format(date)
+    }).format(newDate)
   }
 
   const filteredEntries = selectedDate
     ? entries.filter(
         (entry) =>
-          entry.date.getDate() === selectedDate.getDate() &&
-          entry.date.getMonth() === selectedDate.getMonth() &&
-          entry.date.getFullYear() === selectedDate.getFullYear(),
+          {
+          const newDate = new Date(entry.date)
+          const newSelectedDate = new Date(selectedDate)
+          newDate.getDate() === newSelectedDate.getDate() &&
+          newDate.getMonth() === newSelectedDate.getMonth() &&
+          newDate.getFullYear() === newSelectedDate.getFullYear()
+          }
       )
     : entries
 
@@ -117,10 +135,6 @@ export function DiaryLog() {
       <Card className="overflow-hidden border-none shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
-            <Avatar className="h-10 w-10 border-2 border-primary/20">
-              <AvatarImage src="/placeholder-user.jpg" alt="User" />
-              <AvatarFallback>ME</AvatarFallback>
-            </Avatar>
             <div className="flex-1">
               <Textarea
                 placeholder="What's on your mind today?"
