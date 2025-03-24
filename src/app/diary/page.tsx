@@ -12,7 +12,6 @@ export default function Diary() {
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
             Personal Journal
           </h1>
-          <FileUploader />
         </div>
       </header>
 
