@@ -86,14 +86,34 @@ export function DiaryLog() {
   }
 
 
-  const updateEntry = () => {
+  const updateEntry = async (id: number) => {
     if (editingEntry && editingEntry.content.trim()) {
-      setEntries(entries.map((entry) => (entry.id === editingEntry.id ? editingEntry : entry)))
+      const { data, error } = await supabase
+      .from('diary_entries')
+      .update({
+        content: editingEntry.content,
+        mood: editingEntry.mood,
+        date: new Date()
+      })
+      .eq('id', id)
+      .select();
+
+      setEntries(entries.map((entry) =>
+        entry.id === id ? (data ? data[0] : editingEntry) : entry
+      ));
       setEditingEntry(null)
     }
   }
 
-  const deleteEntry = (id: number) => {
+  const deleteEntry = async (id: number) => {
+    const { data, error } = await supabase
+    .from('diary_entries')
+    .delete()
+    .eq('id', id);
+    if (error) {
+      console.error('Error creating diary entry:', error);
+      return null;
+    }
     setEntries(entries.filter((entry) => entry.id !== id))
   }
 
@@ -236,7 +256,7 @@ export function DiaryLog() {
                             }
                           />
                           <DialogFooter>
-                            <Button onClick={updateEntry}>Save Changes</Button>
+                            <Button onClick={()=> updateEntry(entry.id)}>Save Changes</Button>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
