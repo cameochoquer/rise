@@ -4,14 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
-export default function Home() {
+export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log("Login attempt with:", { email, password });
+    // TODO: Implement signup logic
+    console.log("Signup attempt with:", { email, password, confirmPassword });
   };
 
   return (
@@ -21,7 +22,9 @@ export default function Home() {
           <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
             Rise
           </h1>
-          <h2 className="text-xl text-gray-600 font-medium">Welcome back</h2>
+          <h2 className="text-xl text-gray-600 font-medium">
+            Create your account
+          </h2>
         </div>
 
         <div className="mt-10">
@@ -103,9 +106,27 @@ export default function Home() {
                   type="password"
                   required
                   className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                  placeholder="Enter your password"
+                  placeholder="Create a password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
             </div>
@@ -115,25 +136,19 @@ export default function Home() {
                 type="submit"
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-lg shadow-indigo-500/25"
               >
-                Sign in
+                Create Account
                 <ArrowRightIcon className="ml-2 -mr-1 h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
               </button>
             </div>
           </form>
         </div>
 
-        <div className="flex flex-col items-center space-y-4">
+        <div className="text-center">
           <Link
-            href="/signup"
+            href="/"
             className="text-sm text-indigo-600 hover:text-indigo-500 font-medium transition-colors duration-200"
           >
-            Create an account
-          </Link>
-          <Link
-            href="/forgot-password"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
-          >
-            Forgot password?
+            Already have an account? Sign in
           </Link>
         </div>
       </div>
