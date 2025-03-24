@@ -1,6 +1,7 @@
 
 import { DiaryLog } from './diaryLog';
 import { FileUploader } from './fileUploader';
+import { MonthCalendar } from './monthCalendar';
 
 export default function Home() {
   return (

@@ -1,201 +1,180 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef } from "react"
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Upload, File, X, Check, AlertCircle, Plus } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-type FileStatus = "idle" | "uploading" | "success" | "error"
-
-interface FileItem {
-  file: File
-  progress: number
-  status: FileStatus
-  id: string
+interface CalendarProps {
+  onSelectDate?: (date: Date) => void
+  highlightedDates?: Date[]
 }
 
-export function FileUploader() {
-  const [files, setFiles] = useState<FileItem[]>([])
-  const [isDragging, setIsDragging] = useState(false)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function MonthCalendar({ onSelectDate, highlightedDates = [] }: CalendarProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      addFiles(Array.from(e.target.files))
+  // Sample highlighted dates (in a real app, these would come from your diary entries)
+  const [sampleHighlightedDates] = useState([
+    new Date(),
+    new Date(Date.now() - 86400000), // yesterday
+    new Date(Date.now() - 86400000 * 2), // 2 days ago
+    new Date(Date.now() - 86400000 * 5), // 5 days ago
+    new Date(Date.now() + 86400000 * 2), // 2 days from now
+  ])
+
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ]
+
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month + 1, 0).getDate()
+  }
+
+  const getFirstDayOfMonth = (year: number, month: number) => {
+    return new Date(year, month, 1).getDay()
+  }
+
+  const goToPreviousMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
+  }
+
+  const goToNextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
+  }
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date)
+    if (onSelectDate) {
+      onSelectDate(date)
     }
   }
 
-  const addFiles = (newFiles: File[]) => {
-    const newFileItems = newFiles.map((file) => ({
-      file,
-      progress: 0,
-      status: "idle" as FileStatus,
-      id: crypto.randomUUID(),
-    }))
-
-    setFiles((prev) => [...prev, ...newFileItems])
-
-    // Simulate upload for each file
-    newFileItems.forEach((fileItem) => {
-      simulateUpload(fileItem.id)
-    })
+  const isDateHighlighted = (date: Date) => {
+    return sampleHighlightedDates.some(
+      (highlightedDate) =>
+        highlightedDate.getDate() === date.getDate() &&
+        highlightedDate.getMonth() === date.getMonth() &&
+        highlightedDate.getFullYear() === date.getFullYear(),
+    )
   }
 
-  const simulateUpload = (id: string) => {
-    setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, status: "uploading" } : f)))
-
-    let progress = 0
-    const interval = setInterval(() => {
-      progress += Math.random() * 10
-      if (progress >= 100) {
-        progress = 100
-        clearInterval(interval)
-
-        setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, progress, status: "success" } : f)))
-      } else {
-        setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, progress } : f)))
-      }
-    }, 300)
+  const isToday = (date: Date) => {
+    const today = new Date()
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    )
   }
 
-  const removeFile = (id: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== id))
+  const isSelected = (date: Date) => {
+    return (
+      selectedDate !== null &&
+      date.getDate() === selectedDate.getDate() &&
+      date.getMonth() === selectedDate.getMonth() &&
+      date.getFullYear() === selectedDate.getFullYear()
+    )
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+  const renderCalendarDays = () => {
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
+    const daysInMonth = getDaysInMonth(year, month)
+    const firstDayOfMonth = getFirstDayOfMonth(year, month)
 
-  const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+    const days = []
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragging(false)
-
-    if (e.dataTransfer.files) {
-      addFiles(Array.from(e.dataTransfer.files))
-      setIsDialogOpen(false)
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(<div key={`empty-${i}`} className="h-10"></div>)
     }
-  }
 
-  const openFileDialog = () => {
-    fileInputRef.current?.click()
+    // Add cells for each day of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day)
+      const highlighted = isDateHighlighted(date)
+      const today = isToday(date)
+      const selected = isSelected(date)
+
+      days.push(
+        <Button
+          key={day}
+          variant="ghost"
+          className={cn(
+            "h-10 w-10 p-0 font-normal rounded-full relative",
+            highlighted && !selected && !today && "bg-primary/10 text-primary-foreground",
+            today && !selected && "border border-primary",
+            selected && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+          )}
+          onClick={() => handleDateClick(date)}
+        >
+          {day}
+          {highlighted && !selected && (
+            <span className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary"></span>
+          )}
+        </Button>,
+      )
+    }
+
+    return days
   }
 
   return (
-    <>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="icon" className="rounded-full h-10 w-10 shadow-md">
-                  <Plus className="h-5 w-5" />
-                  <span className="sr-only">Upload files</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Upload Files</DialogTitle>
-                  <DialogDescription>Drag and drop files or click to browse</DialogDescription>
-                </DialogHeader>
-                <div
-                  className={cn(
-                    "border-2 border-dashed rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer transition-all",
-                    isDragging
-                      ? "border-primary bg-primary/5 scale-[0.98]"
-                      : "border-muted-foreground/25 hover:border-primary/50",
-                  )}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={openFileDialog}
-                >
-                  <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" multiple />
-                  <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-1">Drag & drop files here</h3>
-                  <p className="text-sm text-muted-foreground mb-4">or click to browse files</p>
-                  <Button variant="secondary">Select Files</Button>
-                  <p className="text-xs text-muted-foreground mt-4">Supports all file types</p>
-                </div>
+    <Card className="border-none shadow-lg">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xl">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </CardTitle>
+        <div className="flex items-center space-x-1">
+          <Button variant="outline" size="icon" onClick={goToPreviousMonth} className="h-8 w-8">
+            <ChevronLeft className="h-4 w-4" />
+            <span className="sr-only">Previous month</span>
+          </Button>
+          <Button variant="outline" size="icon" onClick={goToNextMonth} className="h-8 w-8">
+            <ChevronRight className="h-4 w-4" />
+            <span className="sr-only">Next month</span>
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-7 gap-1 text-center mb-2">
+          {daysOfWeek.map((day) => (
+            <div key={day} className="text-xs font-medium text-muted-foreground">
+              {day}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-1 text-center">{renderCalendarDays()}</div>
 
-                {files.length > 0 && (
-                  <div className="space-y-4 mt-4 max-h-[200px] overflow-y-auto pr-2">
-                    {files.map((fileItem) => (
-                      <div key={fileItem.id} className="flex items-center p-3 border rounded-lg bg-background">
-                        <div className="mr-3">
-                          {fileItem.status === "success" ? (
-                            <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                              <Check className="h-4 w-4 text-green-600" />
-                            </div>
-                          ) : fileItem.status === "error" ? (
-                            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                              <AlertCircle className="h-4 w-4 text-red-600" />
-                            </div>
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                              <File className="h-4 w-4 text-blue-600" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start mb-1">
-                            <p className="text-sm font-medium truncate">{fileItem.file.name}</p>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                removeFile(fileItem.id)
-                              }}
-                              className="text-muted-foreground hover:text-foreground"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <div className="flex items-center text-xs text-muted-foreground">
-                            <span>{(fileItem.file.size / 1024).toFixed(2)} KB</span>
-                            <span className="mx-2">•</span>
-                            <span>{fileItem.file.type || "Unknown type"}</span>
-                          </div>
-                          {fileItem.status === "uploading" && (
-                            <Progress value={fileItem.progress} className="h-1 mt-2" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <DialogFooter className="sm:justify-start">
-                  <Button type="button" variant="secondary" onClick={() => setIsDialogOpen(false)}>
-                    Done
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Upload Files</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </>
+        <div className="mt-6 space-y-2">
+          <div className="text-sm font-medium">Legend</div>
+          <div className="flex items-center space-x-4 text-xs">
+            <div className="flex items-center">
+              <div className="h-3 w-3 rounded-full bg-primary/10 mr-1"></div>
+              <span>Has entries</span>
+            </div>
+            <div className="flex items-center">
+              <div className="h-3 w-3 rounded-full border border-primary mr-1"></div>
+              <span>Today</span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
